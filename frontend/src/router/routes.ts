@@ -10,6 +10,10 @@ const routes: RouteRecordRaw[] = [
     path: '/batch50',
     component: () => import('pages/BatchClass50.vue'),
   },
+  {
+    path: '/todos',
+    component: () => import('pages/TodoApp.vue'),
+  },
 
   // Always leave this as last one,
   // but you can also remove it
