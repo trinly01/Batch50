@@ -15,19 +15,17 @@
         <q-checkbox v-model="selectedAll" />
       </div>
       <div class="col">
-        <q-input v-model="input" label="What's need to be done" @keyup.enter="addTodo" />
+        <q-input v-model="input" label="What's need to be done" @keyup.enter="add" />
       </div>
     </div>
     <div class="col">
       <q-list>
-        <todo-item v-for="todo in filteredTodos" :key="todo.id" :todo="todo"
-          @toggle="(data: boolean) => updateTodoStatus(todo, data)" @remove="(id: number) => removeItem(id)"
-          @new-content="(data: string) => todo.content = data"></todo-item>
+        <todo-item v-for="todo in filteredTodos" :key="todo.id" :todo="todo" />
       </q-list>
     </div>
     <div class="row q-pa-md items-center">
       <div>
-        {{ itemsLeft }} items left
+        {{ getActiveTodos.length }} items left
       </div>
       <div class="col column items-center">
         <q-btn-toggle v-model="selectedTab" no-caps rounded unelevated toggle-color="primary" color="white"
@@ -45,9 +43,17 @@
 </template>
 
 <script setup lang="ts">
-  import { Todo } from 'src/types/Todo';
   import { computed, ref } from 'vue';
   import TodoItem from 'components/TodoItem.vue';
+
+  import { useTodosStore } from 'stores/todos';
+  import { storeToRefs } from 'pinia';
+
+  const storeTodos = useTodosStore()
+
+  const { getTodos, getActiveTodos, getCompletedTodos } = storeToRefs(storeTodos);
+
+  const { addTodo, clearCompleted } = storeTodos
 
   defineOptions({
     name: 'TodoApp'
@@ -58,27 +64,20 @@
 
   const selectedTab = ref<string>('all');
 
-  const todos = ref<Todo[]>([]);
-
-  const itemsLeft = computed(() => {
-    console.log('triggered')
-    return todos.value.filter(todo => !todo.isDone).length
-  })
-
   const filteredTodos = computed(() => {
     switch (selectedTab.value) {
       case 'active':
-        return todos.value.filter(todo => !todo.isDone)
+        return getActiveTodos.value
       case 'completed':
-        return todos.value.filter(todo => todo.isDone)
+        return getCompletedTodos.value
       default:
-        return todos.value
+        return getTodos.value
     }
   })
 
-  function addTodo() {
+  function add() {
     // add todo to array as first item
-    todos.value.unshift({
+    addTodo({
       id: Date.now(),
       content: input.value,
       isDone: false
@@ -86,20 +85,5 @@
 
     input.value = '';
   }
-
-  function updateTodoStatus(todo: Todo, newStatus: boolean) {
-    todo.isDone = newStatus
-  }
-
-  function removeItem(id: number) {
-    const index = todos.value.findIndex(todo => todo.id === id);
-    todos.value.splice(index, 1);
-  }
-
-  function clearCompleted() {
-    todos.value = todos.value.filter(todo => !todo.isDone)
-  }
-
-
 
 </script>

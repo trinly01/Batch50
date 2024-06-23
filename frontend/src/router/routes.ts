@@ -3,8 +3,9 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    component: () => import('pages/TodoApp.vue'),
+    // component: () => import('layouts/MainLayout.vue'),
+    // children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
   },
   {
     path: '/batch50',
@@ -13,6 +14,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/todos',
     component: () => import('pages/TodoApp.vue'),
+  },
+
+  {
+    path: '/board-game',
+    component: () => import('pages/BoardGame.vue'),
   },
 
   // Always leave this as last one,
