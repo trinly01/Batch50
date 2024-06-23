@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import TodoItem from 'components/TodoItem.vue';
 
   import { useTodosStore } from 'stores/todos';
@@ -53,7 +53,11 @@
 
   const { getTodos, getActiveTodos, getCompletedTodos } = storeToRefs(storeTodos);
 
-  const { addTodo, clearCompleted } = storeTodos
+  const { addTodo, clearCompleted, fetchTodos } = storeTodos
+
+  onMounted(() => {
+    fetchTodos()
+  })
 
   defineOptions({
     name: 'TodoApp'
