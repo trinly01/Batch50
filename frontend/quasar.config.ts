@@ -18,6 +18,10 @@ export default configure((/* ctx */) => {
     boot: [
       {
         server: false,
+        path: 'axios' 
+      },
+      {
+        server: false,
         path: 'pinia' 
       }
     ],

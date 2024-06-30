@@ -82,7 +82,6 @@
   function add() {
     // add todo to array as first item
     addTodo({
-      id: Date.now(),
       content: input.value,
       isDone: false
     });

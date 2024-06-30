@@ -3,3 +3,6 @@ export type Todo = {
   content: string,
   isDone: boolean
 }
+
+// NewTodo Omit id
+export type NewTodo = Omit<Todo, 'id'>
