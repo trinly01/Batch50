@@ -8,7 +8,8 @@
 
       <q-toolbar-title>Todo Application {{ input }}</q-toolbar-title>
 
-      <q-btn flat round dense icon="whatshot" />
+      <q-btn v-if="userRef" flat dense :label="userRef.email" @click="logout" />
+      <q-btn v-else flat dense label="login" @click="login"/>
     </q-toolbar>
     <div class="row q-pa-md items-center">
       <div>
@@ -20,7 +21,7 @@
     </div>
     <div class="col">
       <q-list>
-        <todo-item v-for="todo in filteredTodos" :key="todo.id" :todo="todo" />
+        <todo-item v-for="todo in userRef ? filteredTodos : [] " :key="todo.id" :todo="todo" />
       </q-list>
     </div>
     <div class="row q-pa-md items-center">
@@ -48,6 +49,8 @@
 
   import { useTodosStore } from 'stores/todos';
   import { storeToRefs } from 'pinia';
+import { $backendApi } from 'src/boot/axios';
+import { LocalStorage } from 'quasar';
 
   const storeTodos = useTodosStore()
 
@@ -55,13 +58,55 @@
 
   const { addTodo, clearCompleted, fetchTodos } = storeTodos
 
-  onMounted(() => {
-    fetchTodos()
+  onMounted(async () => {
+    const jwt = LocalStorage.getItem('jwt')
+    const user = LocalStorage.getItem('user')
+    if (jwt) {
+      $backendApi.defaults.headers['Authorization'] = 'Bearer ' + jwt
+      fetchTodos()
+      try {
+        userRef.value = JSON.parse(user + '')
+      } catch (error) {
+        console.log(error)
+      }
+    }
   })
 
   defineOptions({
     name: 'TodoApp'
   });
+
+  const userRef = ref<{
+    email: string
+  } | null>(null)
+  
+  async function login () {
+    delete $backendApi.defaults.headers['Authorization']
+
+    const result = await $backendApi.post('/auth/local', {
+      identifier: 'pepito@gmail.com',
+      password: 'pepito@gmail.com'  
+    })
+
+    const { jwt, user } = result.data
+
+    LocalStorage.set('jwt', jwt)
+    LocalStorage.set('user', JSON.stringify(user))
+
+    $backendApi.defaults.headers['Authorization'] = 'Bearer ' + jwt
+    userRef.value = user
+
+    fetchTodos()
+
+    console.log(result)
+  }
+
+  function logout() {
+    LocalStorage.remove('jwt')
+    LocalStorage.remove('user')
+    delete $backendApi.defaults.headers['Authorization']
+    userRef.value = null
+  }
 
   const input = ref<string>('');
   const selectedAll = ref<boolean>(false);
